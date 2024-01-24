@@ -6,23 +6,30 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cache"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/etag"
 )
 
 func main() {
-	folder := os.Getenv("FOLDER")
-	if len(folder) == 0 {
-		folder = "./public"
+	folder, exists := os.LookupEnv("FOLDER")
+	if !exists {
+		folder = "/public"
 	}
 
 	port := 8080
-
-	portString := os.Getenv("PORT")
-	if len(portString) > 0 {
+	portString, exists := os.LookupEnv("PORT")
+	if !exists {
 		port, _ = strconv.Atoi(portString)
 	}
 
 	app := fiber.New()
-
+	app.Use(compress.New())
+	app.Use(etag.New())
+	app.Use(cache.New())
+	app.Get("/status", func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusOK)
+	})
 	app.Static("/", folder)
 	app.Static("*", folder+"/index.html")
 
