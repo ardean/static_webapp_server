@@ -24,7 +24,7 @@ func main() {
 
 	port := 8080
 	portString, exists := os.LookupEnv("PORT")
-	if !exists {
+	if exists {
 		port, _ = strconv.Atoi(portString)
 	}
 
