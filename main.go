@@ -12,6 +12,11 @@ import (
 )
 
 func main() {
+	baseUrl, exists := os.LookupEnv("BASE_URL")
+	if !exists {
+		baseUrl = "/"
+	}
+
 	folder, exists := os.LookupEnv("FOLDER")
 	if !exists {
 		folder = "/public"
@@ -30,7 +35,7 @@ func main() {
 	app.Get("/status", func(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusOK)
 	})
-	app.Static("/", folder)
+	app.Static(baseUrl, folder)
 	app.Static("*", folder+"/index.html")
 
 	log.Fatal(app.Listen(":" + strconv.Itoa(port)))
